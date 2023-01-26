@@ -1,12 +1,14 @@
-import { QueryResult } from "pg";
-import { connection } from "@/database/db";
+import { Director } from "@/protocols.js";
+import prisma from "@/database/db.js";
 
-async function getDirectorByName(name: string): Promise<QueryResult<any>> {
-  return connection.query("SELECT id AS director_id FROM directors WHERE name=$1;", [name]);
+async function getDirectorByName(name: string): Promise<Director | null> {
+  return prisma.directors.findFirst({ where: { name } });
 }
 
-async function newDirector(name: string): Promise<QueryResult<any>> {
-  return connection.query("INSERT INTO directors (name) VALUES ($1) RETURNING id AS director_id;", [name]);
+async function newDirector(name: string): Promise<Director> {
+  return prisma.directors.create({
+    data: { name },
+  });
 }
 
 export const directorRepository = {
