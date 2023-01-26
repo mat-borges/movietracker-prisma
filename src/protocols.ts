@@ -6,6 +6,13 @@ export type User = {
   created_at?: Date;
 };
 
+export type Session = {
+  id?: number;
+  user_id: number;
+  token: string;
+  created_at: Date | string;
+};
+
 export type Movie = {
   title: string;
   description: string;
