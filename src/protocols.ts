@@ -22,3 +22,5 @@ export type MovieFromDb = Omit<Movie, "director" | "genres" | "actors"> & {
   genres: number[];
   actors: number[];
 };
+
+export type Actor = { name: string };
