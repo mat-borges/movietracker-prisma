@@ -26,3 +26,5 @@ export type MovieFromDb = Omit<Movie, "director" | "genres" | "actors"> & {
 export type Actor = { id?: number; name: string };
 
 export type Director = Actor;
+
+export type Genre = Actor;
