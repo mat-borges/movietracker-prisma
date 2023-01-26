@@ -1,6 +1,5 @@
-import { Movie } from "protocols.js";
-import { QueryResult } from "pg";
-import { connection } from "@/database/db";
+import { MovieFromDb } from "protocols.js";
+import prisma from "@/database/db.js";
 
 async function insertMovie(
   title: string,
@@ -8,23 +7,27 @@ async function insertMovie(
   year: number,
   director: number,
   poster: string,
-): Promise<QueryResult<any>> {
-  return connection.query(
-    "INSERT INTO movies (title, description, year, director, poster) VALUES ($1, $2, $3, $4, $5) RETURNING id AS movie_id;",
-    [title, description, year, director, poster],
-  );
+): Promise<MovieFromDb> {
+  return prisma.movies.create({
+    data: { title, description, year, director, poster },
+  });
 }
 
-async function getMovieByName(title: string): Promise<QueryResult<any>> {
-  return connection.query("SELECT id AS movie_id FROM movies WHERE title=$1;", [title]);
+async function getMovieByTitle(title: string): Promise<MovieFromDb[]> {
+  return prisma.movies.findMany({
+    where: { title },
+  });
 }
 
-async function getAllMovies(limit: number, offset: number): Promise<QueryResult<Movie>> {
-  return connection.query("SELECT * FROM movies LIMIT $1 OFFSET $2;", [limit, offset]);
+async function getAllMovies(limit: number, offset: number): Promise<MovieFromDb[]> {
+  return prisma.movies.findMany({
+    take: limit,
+    skip: offset,
+  });
 }
 
 export const moviesRepository = {
   insertMovie,
   getAllMovies,
-  getMovieByName,
+  getMovieByTitle,
 };

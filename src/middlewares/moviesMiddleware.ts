@@ -27,7 +27,7 @@ export function validateMovieSchema(req: Request, res: Response, next: NextFunct
 
 export async function checkMovieExists(req: Request, res: Response, next: NextFunction) {
   const { title }: { title: string } = res.locals.movie;
-  const movieExists = (await moviesRepository.getMovieByName(title)).rows[0];
+  const movieExists = (await moviesRepository.getMovieByTitle(title)).rows[0];
   if (movieExists) {
     res.status(409).send({ error: `There's a movie with this title already (id:${movieExists.movie_id})` });
   } else {

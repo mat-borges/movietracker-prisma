@@ -11,16 +11,16 @@ export type Movie = {
   description: string;
   year: number;
   poster: string;
-  director: string;
+  director: number;
   genres: string[];
   actors: string[];
 };
 
 export type MovieFromDb = Omit<Movie, "director" | "genres" | "actors"> & {
   id?: number;
-  director: number;
-  genres: number[];
-  actors: number[];
+  // director: number;
+  // genres: number[];
+  // actors: number[];
 };
 
 export type Actor = { id?: number; name: string };
