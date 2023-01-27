@@ -36,9 +36,9 @@ model Movie {
   title       String    @unique
   description String
   year        Int
-  director_id Int
+  director    String
   poster      String
-  director    Director  @relation(fields: [director_id], references: [id], map: "movies_fk0")
+  directors   Director  @relation(fields: [director], references: [name], map: "movies_fk0")
   tracker     Tracker[]
   watched     Watched[]
   actors      Actor[]   @relation("ActorToMovie")
