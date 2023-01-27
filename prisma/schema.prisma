@@ -7,89 +7,87 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-model actor_movie {
-  id       Int    @id @default(autoincrement())
-  movie_id Int
-  actor_id Int
-  movies   movies @relation(fields: [movie_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "actor_movie_fk0")
-  actors   actors @relation(fields: [actor_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "actor_movie_fk1")
+model Actor {
+  id     Int     @id @default(autoincrement())
+  name   String  @unique
+  movies Movie[] @relation("ActorToMovie")
+
+  @@map("actors")
 }
 
-model actors {
-  id          Int           @id @default(autoincrement())
-  name        String
-  actor_movie actor_movie[]
+model Director {
+  id     Int     @id @default(autoincrement())
+  name   String  @unique
+  movies Movie[]
+
+  @@map("directors")
 }
 
-model directors {
-  id     Int      @id @default(autoincrement())
-  name   String
-  movies movies[]
+model Genre {
+  id     Int     @id @default(autoincrement())
+  name   String  @unique
+  movies Movie[] @relation("GenreToMovie")
+
+  @@map("genres")
 }
 
-model genres {
-  id          Int           @id @default(autoincrement())
-  name        String
-  movie_genre movie_genre[]
-}
-
-model movie_genre {
-  id       Int    @id @default(autoincrement())
-  movie_id Int
-  genre_id Int
-  movies   movies @relation(fields: [movie_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "movie_genre_fk0")
-  genres   genres @relation(fields: [genre_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "movie_genre_fk1")
-}
-
-model movies {
-  id          Int           @id @default(autoincrement())
-  title       String
+model Movie {
+  id          Int       @id @default(autoincrement())
+  title       String    @unique
   description String
   year        Int
+  director_id Int
   poster      String
-  director    Int
-  actor_movie actor_movie[]
-  movie_genre movie_genre[]
-  directors   directors     @relation(fields: [director], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "movies_fk0")
-  watched     watched[]
-  wishlist    wishlist[]
+  director    Director  @relation(fields: [director_id], references: [id], map: "movies_fk0")
+  tracker     Tracker[]
+  watched     Watched[]
+  actors      Actor[]   @relation("ActorToMovie")
+  genres      Genre[]   @relation("GenreToMovie")
+
+  @@map("movies")
 }
 
-model sessions {
+model Session {
   id         Int      @id @default(autoincrement())
   user_id    Int
   token      String   @unique
   created_at DateTime @default(now()) @db.Timestamp(6)
-  users      users    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "sessions_fk0")
+  users      User     @relation(fields: [user_id], references: [id], onDelete: Cascade, map: "sessions_fk0")
+
+  @@map("sessions")
 }
 
-model users {
-  id         Int        @id @default(autoincrement())
+model Tracker {
+  id         Int      @id @default(autoincrement())
+  user_id    Int
+  movie_id   Int
+  created_at DateTime @default(now()) @db.Timestamp(6)
+  users      User     @relation(fields: [user_id], references: [id], onDelete: Cascade, map: "tracker_fk0")
+  movies     Movie    @relation(fields: [movie_id], references: [id], onDelete: Cascade, map: "tracker_fk1")
+
+  @@map("tracker")
+}
+
+model User {
+  id         Int       @id @default(autoincrement())
   name       String
-  email      String     @unique
+  email      String    @unique
   password   String
-  created_at DateTime   @default(now()) @db.Timestamp(6)
-  sessions   sessions[]
-  watched    watched[]
-  wishlist   wishlist[]
+  created_at DateTime  @default(now()) @db.Timestamp(6)
+  sessions   Session[]
+  tracker    Tracker[]
+  watched    Watched[]
+
+  @@map("users")
 }
 
-model watched {
+model Watched {
   id         Int      @id @default(autoincrement())
   user_id    Int
   movie_id   Int
   created_at DateTime @default(now()) @db.Timestamp(6)
-  users      users    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "watched_fk0")
-  movies     movies   @relation(fields: [movie_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "watched_fk1")
-}
+  users      User     @relation(fields: [user_id], references: [id], onDelete: Cascade, map: "watched_fk0")
+  movies     Movie    @relation(fields: [movie_id], references: [id], onDelete: Cascade, map: "watched_fk1")
 
-model wishlist {
-  id         Int      @id @default(autoincrement())
-  user_id    Int
-  movie_id   Int
-  rate       Int
-  watched    Boolean  @default(false)
-  created_at DateTime @default(now()) @db.Timestamp(6)
-  users      users    @relation(fields: [user_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "wishlist_fk0")
-  movies     movies   @relation(fields: [movie_id], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "wishlist_fk1")
+  @@map("watched")
 }
