@@ -22,7 +22,7 @@ export function signUpSchemaValidation(req: Request, res: Response, next: NextFu
   const { error } = signUpSchema.validate(user, { abortEarly: false });
 
   if (error) {
-    const errors = error.details.map((detail: any) => detail.message);
+    const errors = error.details.map((detail) => detail.message);
     res.status(422).send({ errors });
   } else {
     const hashPassword = bcrypt.hashSync(password, 12);
@@ -37,7 +37,7 @@ export function signInSchemaValidation(req: Request, res: Response, next: NextFu
   const { error } = signInSchema.validate(user, { abortEarly: false });
 
   if (error) {
-    const errors = error.details.map((detail: any) => detail.message);
+    const errors = error.details.map((detail) => detail.message);
     return res.status(422).send({ message: errors });
   } else {
     res.locals.user = user;
@@ -48,7 +48,7 @@ export function signInSchemaValidation(req: Request, res: Response, next: NextFu
 export async function checkEmailExists(req: Request, res: Response, next: NextFunction) {
   const { email }: { email: string } = res.locals.user;
   try {
-    const emailExists = (await userRepository.checkEmail(email)).rows[0];
+    const emailExists = await userRepository.checkEmail(email);
 
     if (emailExists) {
       return res.sendStatus(409);
@@ -65,16 +65,16 @@ export async function verifyUserCredentials(req: Request, res: Response, next: N
   const { email, password }: { email: string; password: string } = res.locals.user;
   try {
     const user = await userRepository.checkEmail(email);
-    if (!user.rows[0]) {
+    if (!user) {
       return res.status(401).send({ message: "Usuário inválido!" });
     }
 
-    const checkPassword = await bcrypt.compare(password, user.rows[0].password);
+    const checkPassword = await bcrypt.compare(password, user.password);
     if (!checkPassword) {
       return res.status(401).send({ message: "Senha inválida!" });
     } else {
-      res.locals.user.user_id = user.rows[0].id;
-      res.locals.user.name = user.rows[0].name;
+      res.locals.user.user_id = user.id;
+      res.locals.user.name = user.name;
       next();
     }
   } catch (err) {
@@ -87,8 +87,8 @@ export async function sessionExists(req: Request, res: Response, next: NextFunct
   const { email }: { email: string } = res.locals.user;
 
   try {
-    const sessionExist = (await sessionRepository.checkSession(email)).rows[0];
-    if (sessionExist?.status) {
+    const sessionExist = await sessionRepository.checkSession(email);
+    if (sessionExist) {
       const { token } = sessionExist;
       return res.send({ token });
     } else {
@@ -139,7 +139,7 @@ export async function verifySession(req: Request, res: Response, next: NextFunct
 
   try {
     const session = await sessionRepository.getSessionByToken(token);
-    if (!session.rows[0]) {
+    if (!session) {
       res.sendStatus(401);
     } else {
       next();
