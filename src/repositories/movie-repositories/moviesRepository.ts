@@ -4,13 +4,13 @@ import { Movie } from "@prisma/client";
 import prisma from "@/database/db";
 
 async function insertMovie(movie: MovieToDb): Promise<Movie> {
-  const { title, description, year, director_id, poster, genres, actors } = movie;
+  const { title, description, year, director, poster, genres, actors } = movie;
   return prisma.movie.create({
     data: {
       title,
       description,
       year,
-      director_id,
+      director,
       poster,
       genres: {
         connect: genres,
@@ -30,14 +30,13 @@ async function getMovieByTitle(title: string): Promise<Movie | null> {
 
 async function getAllMovies(limit: number, offset: number): Promise<MoviesFromDb[]> {
   const movies = await prisma.movie.findMany({
-    include: { director: true, genres: true, actors: true },
+    include: { genres: true, actors: true },
     take: limit,
     skip: offset,
   });
   return movies.map((movie) => {
     return {
       ...movie,
-      director: movie.director.name,
       genres: movie.genres.map((genre) => genre.name),
       actors: movie.actors.map((actor) => actor.name),
     };

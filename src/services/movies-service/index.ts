@@ -14,8 +14,8 @@ async function insertNewMovie(req: Request, res: Response) {
   });
 
   try {
-    const director_id: number = await checkDirectorExists(movieBody.director);
-    const movie: MovieToDb = { ...movieBody, director_id, genres, actors };
+    const director: string = await checkDirectorExists(movieBody.director);
+    const movie: MovieToDb = { ...movieBody, director, genres, actors };
 
     await checkGenresExists(genres);
     await checkActorsExists(actors);

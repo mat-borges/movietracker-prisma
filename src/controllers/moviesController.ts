@@ -5,14 +5,14 @@ import { directorRepository } from "@/repositories/movie-repositories/directorsR
 import { genreRepository } from "@/repositories/movie-repositories/genresRepository";
 import { moviesRepository } from "@/repositories/movie-repositories";
 
-export async function checkDirectorExists(director: string): Promise<number> {
+export async function checkDirectorExists(director: string): Promise<string> {
   const directorExists = await directorRepository.getDirectorByName(director);
   if (directorExists) {
-    const director_id = Number(directorExists.id);
-    return director_id;
+    const director_name = directorExists.name;
+    return director_name;
   } else {
-    const director_id = Number((await directorRepository.newDirector(director)).id);
-    return director_id;
+    const director_name = (await directorRepository.newDirector(director)).name;
+    return director_name;
   }
 }
 
