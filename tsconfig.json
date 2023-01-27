@@ -2,7 +2,7 @@
   "compilerOptions": {
     "target": "ES2022",
     "module": "CommonJS",
-    "rootDir": "src",
+    "rootDirs": ["src", "prisma"],
     "esModuleInterop": true,
     "outDir": "dist",
     "moduleResolution": "Node",
