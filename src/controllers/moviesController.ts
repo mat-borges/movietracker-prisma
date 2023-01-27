@@ -1,56 +1,55 @@
-import { Response } from "express";
+import { Request, Response } from "express";
+
 import { actorsRepository } from "@/repositories/movie-repositories/actorsRepository";
 import { directorRepository } from "@/repositories/movie-repositories/directorsRepository";
 import { genreRepository } from "@/repositories/movie-repositories/genresRepository";
+import { moviesRepository } from "@/repositories/movie-repositories";
 
-export async function checkDirectorExists(director: string, res: Response): Promise<number | any> {
-  try {
-    const directorExists = (await directorRepository.getDirectorByName(director)).rows;
-    if (directorExists.length !== 0) {
-      const { director_id } = directorExists[0];
-      return director_id;
-    } else {
-      const { director_id } = (await directorRepository.newDirector(director)).rows[0];
-      return director_id;
-    }
-  } catch (err) {
-    console.log(err);
-    return res.sendStatus(500);
+export async function checkDirectorExists(director: string): Promise<number> {
+  const directorExists = await directorRepository.getDirectorByName(director);
+  if (directorExists) {
+    const director_id = Number(directorExists.id);
+    return director_id;
+  } else {
+    const director_id = Number((await directorRepository.newDirector(director)).id);
+    return director_id;
   }
 }
 
-export async function checkGenresExists(genres: string[], res: Response): Promise<number[] | any> {
-  const genres_ids: number[] = [];
-  try {
-    for (const genre of genres) {
-      const genreExists = (await genreRepository.getGenreByName(genre)).rows[0];
-      if (genreExists) {
-        genres_ids.push(genreExists.genre_id);
-      } else {
-        const newGenre = (await genreRepository.insertGenre(genre)).rows[0];
-        genres_ids.push(newGenre.genre_id);
-      }
+export async function checkGenresExists(genres: { name: string }[]): Promise<void> {
+  for (const genre of genres) {
+    const genreExists = await genreRepository.getGenreByName(genre.name);
+
+    if (!genreExists) {
+      await genreRepository.insertGenre(genre.name);
     }
-    return genres_ids;
-  } catch (err) {
-    console.log(err);
-    return res.sendStatus(500);
   }
 }
 
-export async function checkActorsExists(actors: string[], res: Response): Promise<number[] | any> {
-  const actors_ids: number[] = [];
-  try {
-    for (const actor of actors) {
-      const actorExists = (await actorsRepository.getActorByName(actor)).rows[0];
-      if (actorExists) {
-        actors_ids.push(actorExists.actor_id);
-      } else {
-        const newActor = (await actorsRepository.insertActor(actor)).rows[0];
-        actors_ids.push(newActor.actor_id);
-      }
+export async function checkActorsExists(actors: { name: string }[]): Promise<void> {
+  for (const actor of actors) {
+    const actorExists = await actorsRepository.getActorByName(actor.name);
+
+    if (!actorExists) {
+      await actorsRepository.insertActor(actor.name);
     }
-    return actors_ids;
+  }
+}
+
+export async function getAllMovies(req: Request, res: Response) {
+  const query: { limit?: number; offset?: number } = req.query;
+  let limit = 40;
+  let offset = 0;
+
+  if (query.limit) {
+    limit = Number(query.limit);
+  } else if (query.offset) {
+    offset = Number(query.offset);
+  }
+
+  try {
+    const movies = await moviesRepository.getAllMovies(limit, offset);
+    res.send(movies);
   } catch (err) {
     console.log(err);
     res.sendStatus(500);
