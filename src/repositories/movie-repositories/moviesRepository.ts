@@ -1,4 +1,4 @@
-import { MovieToDb, MoviesFromDb } from "@/protocols";
+import { Filters, MovieToDb, MoviesFromDb } from "@/protocols";
 
 import { Movie } from "@prisma/client";
 import prisma from "@/database/db";
@@ -28,11 +28,12 @@ async function getMovieByTitle(title: string): Promise<Movie | null> {
   });
 }
 
-async function getAllMovies(limit: number, offset: number): Promise<MoviesFromDb[]> {
+async function getAllMovies(filters: Filters): Promise<MoviesFromDb[]> {
   const movies = await prisma.movie.findMany({
     include: { genres: true, actors: true },
-    take: limit,
-    skip: offset,
+    take: filters.limit,
+    skip: filters.offset,
+    orderBy: { [filters.orderBy]: filters.order },
   });
   return movies.map((movie) => {
     return {

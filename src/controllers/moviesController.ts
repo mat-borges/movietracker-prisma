@@ -1,5 +1,6 @@
 import { Request, Response } from "express";
 
+import { Filters } from "@/protocols";
 import { actorsRepository } from "@/repositories/movie-repositories/actorsRepository";
 import { directorRepository } from "@/repositories/movie-repositories/directorsRepository";
 import { genreRepository } from "@/repositories/movie-repositories/genresRepository";
@@ -37,18 +38,15 @@ export async function checkActorsExists(actors: { name: string }[]): Promise<voi
 }
 
 export async function getAllMovies(req: Request, res: Response) {
-  const query: { limit?: number; offset?: number } = req.query;
-  let limit = 40;
-  let offset = 0;
+  const query: { limit?: number; offset?: number; orderBy?: string; order?: "asc" | "desc" } = req.query;
+  const filters: Filters = { limit: 40, offset: 0, orderBy: "id", order: "desc" };
 
-  if (query.limit) {
-    limit = Number(query.limit);
-  } else if (query.offset) {
-    offset = Number(query.offset);
-  }
-
+  if (query.limit) filters.limit = Number(query.limit);
+  if (query.offset) filters.offset = Number(query.offset);
+  if (query.orderBy) filters.orderBy = query.orderBy;
+  if (query.order) filters.order = query.order;
   try {
-    const movies = await moviesRepository.getAllMovies(limit, offset);
+    const movies = await moviesRepository.getAllMovies(filters);
     res.send(movies);
   } catch (err) {
     console.log(err);
