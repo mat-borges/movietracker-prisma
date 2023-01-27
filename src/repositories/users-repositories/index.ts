@@ -1,14 +1,14 @@
-import { User } from "protocols.js";
-import prisma from "@/database/db.js";
+import { User } from "@prisma/client";
+import prisma from "@/database/db";
 
 async function registerUser(name: string, email: string, password: string): Promise<User> {
-  return prisma.users.create({
+  return prisma.user.create({
     data: { name, email, password },
   });
 }
 
 async function checkEmail(email: string): Promise<User | null> {
-  return prisma.users.findUnique({
+  return prisma.user.findUnique({
     where: { email },
   });
 }

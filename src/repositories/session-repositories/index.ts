@@ -1,14 +1,14 @@
-import { Session } from "@/protocols.js";
-import prisma from "@/database/db.js";
+import { Session } from "@prisma/client";
+import prisma from "@/database/db";
 
 async function closeSession(token: string): Promise<Session> {
-  return prisma.sessions.delete({
+  return prisma.session.delete({
     where: { token },
   });
 }
 
-async function checkSession(email: string): Promise<(Session & { users: { email: string } }) | null> {
-  return prisma.sessions.findFirst({
+async function checkSession(email: string): Promise<Session | null> {
+  return prisma.session.findFirst({
     where: {
       users: {
         email: {
@@ -31,13 +31,13 @@ async function checkSession(email: string): Promise<(Session & { users: { email:
 }
 
 async function newSession(user_id: number, token: string): Promise<Session> {
-  return prisma.sessions.create({
+  return prisma.session.create({
     data: { user_id, token },
   });
 }
 
 async function getSessionByToken(token: string): Promise<Session | null> {
-  return prisma.sessions.findUnique({
+  return prisma.session.findUnique({
     where: { token },
   });
 }
