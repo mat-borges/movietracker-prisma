@@ -122,7 +122,7 @@ export async function validateToken(req: Request, res: Response, next: NextFunct
     return res.sendStatus(404);
   }
 
-  const token: string = authorization?.replace(`Bearer `, ``);
+  const token: string = authorization?.replace("Bearer ", "");
   try {
     const { user_id, name, email } = jwt.verify(token, String(process.env.JWT_SECRET)) as JwtPayload;
     res.locals.token = token;
