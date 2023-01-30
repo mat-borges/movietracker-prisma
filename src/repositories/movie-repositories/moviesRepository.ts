@@ -19,6 +19,10 @@ async function insertMovie(movie: MovieToDb): Promise<Movie> {
         connect: actors,
       },
     },
+    include: {
+      genres: true,
+      actors: true,
+    },
   });
 }
 
