@@ -8,7 +8,7 @@ dotenv.config();
 
 const server = express();
 
-server.use(cors()).use(json()).use(authRouter).use(moviesRouter).use(trackerRouter);
+server.use(cors()).use(json()).use(authRouter).use("/movies", moviesRouter).use("/tracker", trackerRouter);
 
 const port = process.env.PORT;
 server.listen(port, () => console.log(`Running server on http://locahost:${port}`));
