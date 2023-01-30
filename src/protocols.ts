@@ -1,5 +1,4 @@
 import { Movie } from "@prisma/client";
-import { number } from "joi";
 
 export type MoviesFromDb = Movie & {
   genres: string[];
@@ -19,3 +18,5 @@ export type Filters = {
   orderBy: string;
   order: "asc" | "desc";
 };
+
+export type QueryFilters = Partial<Filters>;
